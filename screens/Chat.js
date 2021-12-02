@@ -10,23 +10,21 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 const Chat = ({navigation, route}) => {
   const [messages, setMessages] = useState([]);
   const {receiverUid, user, sentUid} = route.params;
-  console.log('chat route------------->', route.params);
 
   useEffect(() => {
-    // getAllMsgs();
     const docid =
       receiverUid > sentUid
         ? sentUid + '-' + receiverUid
         : receiverUid + '-' + sentUid;
-    console.log('Docid', docid);
+
     const messageRef = firestore()
       .collection('chats')
       .doc(docid)
       .collection('messages')
       .orderBy('createdAt', 'desc');
+
     messageRef.onSnapshot(querySnap => {
       const allMsgs = querySnap.docs.map(dataSnap => {
-        console.log('dataSnap>>>>>>>>>>>>', dataSnap.data().createdAt);
         const data = dataSnap.data();
         if (data.createdAt) {
           return {
@@ -68,33 +66,6 @@ const Chat = ({navigation, route}) => {
     });
   }, [navigation]);
 
-  console.log('====>', messages);
-
-  const getAllMsgs = async () => {
-    console.log('getAllmsg');
-    const docid =
-      receiverUid > sentUid
-        ? sentUid + '-' + receiverUid
-        : receiverUid + '-' + sentUid;
-    console.log('Docid', docid);
-    const querySnap = await firestore()
-      .collection('chats')
-      .doc(docid)
-      .collection('messages')
-      .orderBy('createdAt', 'desc')
-      .get();
-
-    const allMsgs = querySnap.docs.map(dataSnap => {
-      console.log('dataSnap>>>>>>>>>>>>', dataSnap.data().createdAt);
-      return {
-        ...dataSnap.data(),
-        createdAt: dataSnap.data().createdAt.toDate(),
-      };
-    });
-    setMessages(allMsgs);
-    console.log('querySnap==================================>', allMsgs);
-  };
-
   const onSend = (messages = []) => {
     const msgs = messages[0];
     const myMsgs = {
@@ -114,7 +85,7 @@ const Chat = ({navigation, route}) => {
       .collection('chats')
       .doc(docid)
       .collection('messages')
-      .add({myMsgs, createdAt: firestore.FieldValue.serverTimestamp()});
+      .add(myMsgs);
 
     // // const {_id, createdAt, text, user} = messages[0];
     //db.collection('users');

@@ -21,7 +21,7 @@ const Home = ({navigation, route}) => {
       .get();
 
     const allUsers = querySnap.docs.map(docSnap => docSnap.data());
-    console.log('(___________)', users);
+   
     setUsers(allUsers);
   };
   useEffect(() => {

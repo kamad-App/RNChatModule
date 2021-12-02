@@ -44,7 +44,7 @@ const App = () => {
         <Stack.Screen
           name="Chat"
           component={Chat}
-           options={({route}) => ({title: route.params.name})}
+           options={({route}) => ({title: route.params.name,user: 'users'})}
           >
           {/* {props => <Chat {...props} user={user} />} */}
         </Stack.Screen>
