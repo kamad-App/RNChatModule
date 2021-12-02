@@ -1,22 +1,56 @@
 //
 import React, {useEffect, useCallback, useState, useLayoutEffect} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Keyboard} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 //import { Avatar } from 'react-native-elements';
 import {auth, db} from '../firebaseSvc';
-import {GiftedChat} from 'react-native-gifted-chat';
+import {GiftedChat, Bubble, InputToolbar} from 'react-native-gifted-chat';
 import {firebase} from '@react-native-firebase/firestore';
-
-const Chat = ({navigation}) => {
+import firestore from '@react-native-firebase/firestore';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+const Chat = ({navigation, route}) => {
   const [messages, setMessages] = useState([]);
+  const {receiverUid, user, sentUid} = route.params;
+  console.log('chat route------------->', route.params);
+
+  useEffect(() => {
+    // getAllMsgs();
+    const docid =
+      receiverUid > sentUid
+        ? sentUid + '-' + receiverUid
+        : receiverUid + '-' + sentUid;
+    console.log('Docid', docid);
+    const messageRef = firestore()
+      .collection('chats')
+      .doc(docid)
+      .collection('messages')
+      .orderBy('createdAt', 'desc');
+    messageRef.onSnapshot(querySnap => {
+      const allMsgs = querySnap.docs.map(dataSnap => {
+        console.log('dataSnap>>>>>>>>>>>>', dataSnap.data().createdAt);
+        const data = dataSnap.data();
+        if (data.createdAt) {
+          return {
+            ...dataSnap.data(),
+            createdAt: dataSnap.data().createdAt.toDate(),
+          };
+        } else {
+          return {
+            ...dataSnap.data(),
+            createdAt: new Date(),
+          };
+        }
+      });
+      setMessages(allMsgs);
+    });
+  }, []);
+
   const signOut = () => {
     auth
       .signOut()
       .then(() => {
-        // Sign-out successful.
         navigation.replace('Login');
       })
       .catch(error => {
-        // An error happened.
         console.log(error);
       });
   };
@@ -34,61 +68,92 @@ const Chat = ({navigation}) => {
     });
   }, [navigation]);
 
-  // useEffect(() => {
-  //   setMessages([
-  //     {
-  //       _id: 1,
-  //       text: 'React native',
-  //       createdAt: new Date(),
-  //       user: {
-  //         _id: 2,
-  //         name: 'React Native',
-  //         avatar: 'https://placeimg.com/140/140/any',
-  //       },
-  //     },
-  //   ]);
-  // }, []);
   console.log('====>', messages);
 
-  useEffect(() => {
-    console.log('Unsub---->', unsubscribe);
-    const unsubscribe = db
+  const getAllMsgs = async () => {
+    console.log('getAllmsg');
+    const docid =
+      receiverUid > sentUid
+        ? sentUid + '-' + receiverUid
+        : receiverUid + '-' + sentUid;
+    console.log('Docid', docid);
+    const querySnap = await firestore()
       .collection('chats')
+      .doc(docid)
+      .collection('messages')
       .orderBy('createdAt', 'desc')
-      .onSnapshot(snapshot =>
-        setMessages(
-          snapshot?.docs.map(doc => ({
-            _id: doc?.data()._id,
-            createdAt: doc?.data().createdAt.toDate(),
-            text: doc?.data().text,
-            user: doc?.data().user,
-          })),
-        ),
-      );
-  }, []);
+      .get();
+
+    const allMsgs = querySnap.docs.map(dataSnap => {
+      console.log('dataSnap>>>>>>>>>>>>', dataSnap.data().createdAt);
+      return {
+        ...dataSnap.data(),
+        createdAt: dataSnap.data().createdAt.toDate(),
+      };
+    });
+    setMessages(allMsgs);
+    console.log('querySnap==================================>', allMsgs);
+  };
 
   const onSend = (messages = []) => {
+    const msgs = messages[0];
+    const myMsgs = {
+      ...msgs,
+      sentBy: sentUid,
+      sentTo: receiverUid,
+      createdAt: new Date(),
+    };
     setMessages(previousMessages =>
-      GiftedChat.append(previousMessages, messages),
+      GiftedChat.append(previousMessages, myMsgs),
     );
-    const {_id, createdAt, text, user} = messages[0];
-    db.collection('chats').add({_id, createdAt, text, user});
+    const docid =
+      receiverUid > sentUid
+        ? sentUid + '-' + receiverUid
+        : receiverUid + '-' + sentUid;
+    firestore()
+      .collection('chats')
+      .doc(docid)
+      .collection('messages')
+      .add({myMsgs, createdAt: firestore.FieldValue.serverTimestamp()});
+
+    // // const {_id, createdAt, text, user} = messages[0];
+    //db.collection('users');
   };
+
   return (
-    <GiftedChat
-      messages={messages}
-      loadEarlier={true}
-      alwaysShowSend={true}
-      style={{flex: 1, backgroundColor: 'yellow'}}
-      //renderUsernameOnMessage={true}
-      onSend={messages => onSend(messages)}
-      scrollToBottom={true}
-      user={{
-        _id: auth?.currentUser?.email,
-        name: auth?.currentUser?.displayName,
-        avatar: auth?.currentUser?.photoURL,
-      }}
-    />
+    <View style={{flex: 1}}>
+      <GiftedChat
+        messages={messages}
+        style={{flex: 1, backgroundColor: 'yellow'}}
+        onSend={messages => onSend(messages)}
+        user={{
+          _id: sentUid,
+        }}
+        renderBubble={props => {
+          return (
+            <Bubble
+              {...props}
+              wrapperStyle={{
+                right: {
+                  backgroundColor: 'green',
+                },
+                left: {
+                  backgroundColor: 'white',
+                },
+              }}
+            />
+          );
+        }}
+        renderInputToolbar={props => {
+          return (
+            <InputToolbar
+              {...props}
+              containerStyle={{borderTopWidth: 2.5, borderTopColor: 'green'}}
+            />
+          );
+        }}
+      />
+    </View>
   );
 };
 const styles = StyleSheet.create({});
