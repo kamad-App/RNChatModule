@@ -9,9 +9,13 @@ import firestore from '@react-native-firebase/firestore';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 const Chat = ({navigation, route}) => {
   const [messages, setMessages] = useState([]);
-  const {receiverUid, user, sentUid} = route.params;
+  const {receiverUid, sentUid} = route.params;
 
   useEffect(() => {
+    getMessages();
+  }, []);
+
+  const getMessages = () => {
     const docid =
       receiverUid > sentUid
         ? sentUid + '-' + receiverUid
@@ -40,8 +44,7 @@ const Chat = ({navigation, route}) => {
       });
       setMessages(allMsgs);
     });
-  }, []);
-
+  };
   const signOut = () => {
     auth
       .signOut()
@@ -86,9 +89,6 @@ const Chat = ({navigation, route}) => {
       .doc(docid)
       .collection('messages')
       .add(myMsgs);
-
-    // // const {_id, createdAt, text, user} = messages[0];
-    //db.collection('users');
   };
 
   return (
