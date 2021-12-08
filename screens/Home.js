@@ -6,13 +6,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  Modal,
+  Alert
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import {auth} from '../firebaseSvc';
-
+import {IconButton, FAB, Title} from 'react-native-paper';
 const Home = ({navigation, route}) => {
   const {uid} = route.params;
-
+  
   const [users, setUsers] = useState(null);
   const getUser = async () => {
     const querySnap = await firestore()
@@ -21,23 +23,14 @@ const Home = ({navigation, route}) => {
       .get();
 
     const allUsers = querySnap.docs.map(docSnap => docSnap.data());
-   
+
     setUsers(allUsers);
   };
   useEffect(() => {
     getUser();
   }, []);
 
-  const signOut = () => {
-    auth
-      .signOut()
-      .then(() => {
-        navigation.replace('Login');
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  };
+  
   const RenderCard = ({item}) => {
     return (
       <TouchableOpacity
@@ -64,15 +57,19 @@ const Home = ({navigation, route}) => {
         }}
         extraData={item => item.uid}
       />
-      <TouchableOpacity
-        style={{
-          alignItems: 'center',
-          marginBottom: 30,
-        }}
-        onPress={signOut}>
-        <Text>Logout</Text>
-      </TouchableOpacity>
-    </View>
+
+      <View style={styles.createRoomB}>
+        
+            <FAB
+               style={styles.fab}
+              large
+              icon="plus"
+              onPress={() => navigation.navigate('Room',)}
+            />
+          </View>
+    
+      </View>
+   
   );
 };
 export default Home;
@@ -97,4 +94,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderBottomColor: 'grey',
   },
+  createRoomB: {
+    position:'absolute',
+    right:30,
+    bottom:70
+  },
+ 
 });

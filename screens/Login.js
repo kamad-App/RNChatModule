@@ -8,26 +8,35 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-
+import { useDispatch,useSelector } from 'react-redux';
 import {auth} from '../firebaseSvc';
 import {Button} from 'react-native-paper';
 import {TextInput} from 'react-native-paper';
-const {width, height} = Dimensions.get('screen');
-const Login = ({navigation}) => {
-        const [name, setName] = useState('');
-        const [email, setEmail] = useState('');
-        const [password, setPassword] = useState('');
-        const [avatar, setAvatar] = useState('');
+import { LoginAction } from '../redux/action/loginID';
 
-   const login = async () => {
-    if (email===" " || password===" ") {
+const {width, height} = Dimensions.get('screen');
+
+const Login = ({navigation}) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
+  const [avatar, setAvatar] = useState('');
+
+  const dispatch=useDispatch();
+
+  const login = async () => {
+    if (!email || !password) {
       Alert.alert('Add the Fields');
-    }else {
-    const result = await auth?.signInWithEmailAndPassword(email, password);
-    console.log('result of login', result?.user?._user?.uid);
-    navigation.navigate('Home', {uid: result?.user?._user?.uid});
+    } else {
+      const result = await auth?.signInWithEmailAndPassword(email, password);
+      console.log('result of login', result?.user?._user?.uid);
+      const ValueID= result?.user?._user?.uid;
+      dispatch(LoginAction(ValueID))
+      navigation.navigate('Home', {
+        uid: result?.user?._user?.uid,
+      });
     }
-     };
+  };
 
   return (
     <View style={styles.container}>
@@ -96,7 +105,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {width: 20, height: 30},
     shadowOpacity: 0.8,
-    shadowRadius:30,
+    shadowRadius: 30,
     marginTop: 50,
     borderRadius: 30,
     backgroundColor: 'skyblue',
