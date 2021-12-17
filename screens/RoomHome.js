@@ -59,7 +59,34 @@ const RoomHome = ({navigation, route}) => {
       .collection('messages')
       .add(myMsgs);
   };
-
+  // const onLongPress = (context, message) => {
+  //   console.log(context, message);
+  //   const options = ['copy', 'Delete Message', 'Cancel'];
+  //   const cancelButtonIndex = options.length - 1;
+  //   context.actionSheet().showActionSheetWithOptions(
+  //     {
+  //       options,
+  //       cancelButtonIndex,
+  //     },
+  //     buttonIndex => {
+  //       switch (buttonIndex) {
+  //         case 0:
+  //           Clipboard.setString(this.props.currentMessage.text);
+  //           break;
+  //         case 1:
+  //           onDelete();
+  //           break;
+  //       }
+  //     },
+  //   );
+  // };
+  // const onDelete = messageIdToDelete => {
+  //   setMessages(previousState => ({
+  //     messages: previousState.messages.filter(
+  //       message => message.id !== messageIdToDelete,
+  //     ),
+  //   }));
+  // };
   return (
     <GiftedChat
       messages={messages}
@@ -70,7 +97,7 @@ const RoomHome = ({navigation, route}) => {
       }}
       renderUsernameOnMessage={true}
       showUserAvatar={true}
-      
+      //onLongPress={onLongPress}
     />
   );
 };

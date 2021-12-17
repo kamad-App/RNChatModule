@@ -7,14 +7,16 @@ import {
   StyleSheet,
   TextInput,
   Modal,
-  Alert
+  Alert,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import {auth} from '../firebaseSvc';
+
 import {IconButton, FAB, Title} from 'react-native-paper';
+import {useSelector} from 'react-redux';
 const Home = ({navigation, route}) => {
   const {uid} = route.params;
-  
+  const login = useSelector(state => state.loginReducer);
   const [users, setUsers] = useState(null);
   const getUser = async () => {
     const querySnap = await firestore()
@@ -29,8 +31,33 @@ const Home = ({navigation, route}) => {
   useEffect(() => {
     getUser();
   }, []);
+  const signOut = () => {
+    auth.signOut()
+    .then(() => {
+      navigation.replace('Login');
+    })
+    .catch(error => {
+      console.log(error);
+    });
+    firestore().collection('users').doc(login?.uid).update({
+      status: firestore.FieldValue.serverTimestamp(),
+    });
+   
+  };
+  // useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerRight: () => (
+  //       <TouchableOpacity
+  //         style={{
+  //           marginRight: 10,
+  //         }}
+  //         onPress={signOut}>
+  //         <Text>Logout</Text>
+  //       </TouchableOpacity>
+  //     ),
+  //   });
+  // }, [navigation]);
 
-  
   const RenderCard = ({item}) => {
     return (
       <TouchableOpacity
@@ -39,6 +66,10 @@ const Home = ({navigation, route}) => {
             name: item?.name,
             sentUid: route?.params?.uid,
             receiverUid: item?.uid,
+            status:
+              typeof item?.status === 'string'
+                ? item?.status
+                : item?.status?.toDate().toString(),
           })
         }>
         <View style={styles.FlatList}>
@@ -59,17 +90,9 @@ const Home = ({navigation, route}) => {
       />
 
       <View style={styles.createRoomB}>
-        
-            <FAB
-               style={styles.fab}
-              large
-              icon="plus"
-              onPress={() => navigation.navigate('Room',)}
-            />
-          </View>
-    
+        <FAB large icon="plus" onPress={() => navigation.navigate('Room')} />
       </View>
-   
+    </View>
   );
 };
 export default Home;
@@ -95,9 +118,8 @@ const styles = StyleSheet.create({
     borderBottomColor: 'grey',
   },
   createRoomB: {
-    position:'absolute',
-    right:30,
-    bottom:70
+    position: 'absolute',
+    right: 30,
+    bottom: 70,
   },
- 
 });

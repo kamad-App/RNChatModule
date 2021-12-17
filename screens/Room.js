@@ -21,7 +21,6 @@ const Room = ({navigation}) => {
       .onSnapshot(querySnapshot => {
         console.log(querySnapshot);
         const Gthreads = querySnapshot.docs.map(documentSnapshot => {
-         
           return {
             _id: documentSnapshot.id,
             ...documentSnapshot.data(),
@@ -45,6 +44,7 @@ const Room = ({navigation}) => {
       <FlatList
         data={threads}
         renderItem={({item}) => {
+          console.log('::::::::::::::::>',item);
           return (
             <TouchableOpacity
               style={styles.List}
