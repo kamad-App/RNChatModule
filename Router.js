@@ -21,6 +21,7 @@ const Router = ({navigation}) => {
  
   const login = useSelector(state => state.loginReducer);
 
+  
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(userExist => {
       if (userExist) {
@@ -62,11 +63,11 @@ const Router = ({navigation}) => {
         <Stack.Screen
           name="Home"
           component={Home}
-          // options={{
-          //   headerRight: () => (
-          //     <Button onPress={logOut} title="logOut" color="black" />
-          //   ),
-          // }}
+          options={{
+            headerRight: () => (
+              <Button onPress={logOut} title="logOut" color="black" />
+            ),
+          }}
         />
 
         <Stack.Screen

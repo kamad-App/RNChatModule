@@ -56,6 +56,10 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Kamadchat app requires photo library access</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Kamadchat app requires camera library access</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

@@ -90,7 +90,7 @@ const Home = ({navigation, route}) => {
       />
 
       <View style={styles.createRoomB}>
-        <FAB large icon="plus" onPress={() => navigation.navigate('Room')} />
+        <FAB large icon="minus"  onPress={() => navigation.navigate('Room')} />
       </View>
     </View>
   );
