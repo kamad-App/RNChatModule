@@ -1,26 +1,9 @@
 import React, {useEffect, useCallback, useState, useLayoutEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  Modal,
-  Alert,
-  Clipboard
-} from 'react-native';
-
+import {View, Text, StyleSheet, Alert, ImageBackground} from 'react-native';
+import BGimage from '../images/BGimage.jpeg';
 import moment from 'moment';
 import ImagePicker from 'react-native-image-crop-picker';
-import {
-  GiftedChat,
-  Bubble,
-  InputToolbar,
-  Actions,
-  ActionsProps,
-} from 'react-native-gifted-chat';
+import {GiftedChat, Bubble, InputToolbar} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
 import {useDispatch, useSelector} from 'react-redux';
 
@@ -38,30 +21,6 @@ const Chat = ({navigation, route}) => {
   useEffect(() => {
     getReceiverInfo();
   }, []);
-  const openPhotoGallery = (isCrop, callback) => {
-    const options = {
-      width: 1024,
-      height: 1024,
-      compressImageMaxWidth: 1024,
-      compressImageMaxHeight: 1024,
-      avoidEmptySpaceAroundImage: true,
-      cropping: isCrop,
-      cropperCircleOverlay: isCrop,
-      mediaType: 'photo',
-    };
-  };
-  const getImageObject = (imageObj, isForlibrary) => {
-    const fileNameA = imageObj.path.split('/');
-    const filename = fileNameA[fileNameA.length - 1];
-    const imagepath = `file:///${imageObj.path}`;
-    const imgeObjConverted = {
-      uri: imagepath,
-      name: filename,
-      filename,
-      type: imageObj.mime,
-    };
-    return imgeObjConverted;
-  };
 
   const getReceiverInfo = () => {
     const userRef = firestore()
@@ -140,20 +99,6 @@ const Chat = ({navigation, route}) => {
       filterMessage(allMsgs);
     });
   };
-  // const newMsg = {
-  //  // ...message,
-  //  // deletedBy: this.props.user.uid,
-  // };
-  // firestore()
-  //   .collection('deleted chats')
-  //   .doc(docid)
-  //   .collection('messages')
-  //   .add(newMsg);
-  // this.setState(previousState => ({
-  //   messages: previousState.messages.filter(
-  //     message => message._id !== messageIdToDelete,
-  //   ),
-  // }));
 
   const handleImages = () => {
     ImagePicker.openPicker({
@@ -163,9 +108,9 @@ const Chat = ({navigation, route}) => {
     }).then(image => {
       console.log(image);
       setCoverPhoto(image.path);
-    });
+    })
   };
-  console.log('coverPhoto>', coverPhoto);
+
   const onSend = (messages = []) => {
     const msgs = messages[0];
     const myMsgs = {
@@ -175,7 +120,7 @@ const Chat = ({navigation, route}) => {
       createdAt: new Date(),
       image: coverPhoto,
     };
-    console.log('coverphyo>', coverPhoto);
+
     setMessages(previousMessages =>
       GiftedChat.append(previousMessages, myMsgs),
     );
@@ -211,7 +156,6 @@ const Chat = ({navigation, route}) => {
     //     console.log('Snap', snap);
     //     console.log('snap ref', snap.docs[0].ref);
     //     snap.docs[0]?._ref.delete();
-
     //   });
     const newMsg = {
       ...message,
@@ -225,32 +169,10 @@ const Chat = ({navigation, route}) => {
     setMessages(previousState =>
       previousState.filter(message => message._id !== message._id),
     );
-    // console.log('res->', response.then(res=>{
-    //   console.log("res",res.docs[0]?._data);
-    // }));
   };
-  //console.log('messages=>', messages);
-  const MessageInfo = () => {
-    return (
-      // <View style={styles.centeredView}>
-      //   <Modal
-      //     animationType="slide"
-      //     transparent={true}
-      //     visible={modalVisible}
-      //     onRequestClose={() => {
-      //       Alert.alert('Modal has been closed.');
-      //       setModalVisible(!modalVisible);
-      //     }}>
-      //     <View style={styles.centeredView}>
-      //       <View style={styles.modalView}>
-      //         <Text style={styles.modalText}>Hello World!</Text>
-      //       </View>
-      //     </View>
-      //   </Modal>
-      // </View>
 
-      Alert.alert('')
-    );
+  const MessageInfo = () => {
+    return Alert.alert('Time');
   };
   const onLongPress = (context, message) => {
     console.log('------>', context, message);
@@ -268,7 +190,7 @@ const Chat = ({navigation, route}) => {
             MessageInfo();
             break;
           case 1:
-            Clipboard.setString();
+            // Clipboard.setString();
             break;
           case 2:
             onDelete(message);
@@ -279,25 +201,24 @@ const Chat = ({navigation, route}) => {
   };
 
   return (
-    <View style={{flex: 1}}>
+    <ImageBackground source={BGimage} style={{flex: 1}}>
       <View style={styles.statusView}>
         <Text style={{alignSelf: 'center', fontSize: 14}}>
           {status == 'online'
             ? 'online'
-            : 'Last Active ' + moment(status).format(' h:mm:ss a')}
+            : 'Last seen ' + moment(status).format(' h:mm:ss a')}
         </Text>
       </View>
+
       <GiftedChat
         messages={messages}
         onSend={messages => onSend(messages)}
         onInputTextChanged={onChatTextChanged}
-       
         user={{
           _id: sentUid,
         }}
         isTyping={isTyping}
         //renderFooter={renderFooter}
-        renderAvatarOnTop
         onLongPress={onLongPress}
         onPressActionButton={handleImages}
         renderBubble={props => {
@@ -306,7 +227,7 @@ const Chat = ({navigation, route}) => {
               {...props}
               wrapperStyle={{
                 right: {
-                  backgroundColor: 'lightseagreen',
+                  backgroundColor: 'green',
                 },
                 left: {
                   backgroundColor: 'lightgray',
@@ -315,64 +236,27 @@ const Chat = ({navigation, route}) => {
             />
           );
         }}
+      
         renderInputToolbar={props => {
           return (
             <InputToolbar
               {...props}
-              //   containerStyle={{borderTopWidth: 0.5, borderWidth: 0.2}}
+              containerStyle={{
+                borderTopWidth: 0.5,
+                height: 50,
+                backgroundColor: 'white',
+              }}
             />
           );
         }}
       />
-      {Platform.OS === 'android' && <KeyboardAvoidingView behavior="padding" />}
-    </View>
+    </ImageBackground>
   );
 };
 const styles = StyleSheet.create({
   statusView: {
     height: 20,
     backgroundColor: 'skyblue',
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonOpen: {
-    backgroundColor: '#F194FF',
-  },
-  buttonClose: {
-    backgroundColor: '#2196F3',
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: 'center',
   },
 });
 export default Chat;

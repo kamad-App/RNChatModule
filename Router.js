@@ -10,6 +10,8 @@ import {auth} from './firebaseSvc';
 import Room from './screens/Room';
 import RoomHome from './screens/RoomHome';
 import CreateRoom from './screens/CreateRoom';
+import Dummy from './screens/Dummy';
+import payment from './screens/payment';
 import firestore from '@react-native-firebase/firestore';
 import {Button} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -18,10 +20,7 @@ const Stack = createNativeStackNavigator();
 
 const Router = ({navigation}) => {
   const [users, setUsers] = useState('');
- 
   const login = useSelector(state => state.loginReducer);
-
-  
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(userExist => {
       if (userExist) {
@@ -35,11 +34,12 @@ const Router = ({navigation}) => {
       unsubscribe();
     };
   }, []);
-  const logOut =  () => {
+  const logOut = () => {
     firestore().collection('users').doc(login?.loginKey).update({
       status: firestore.FieldValue.serverTimestamp(),
     });
-    auth.signOut()
+    auth
+      .signOut()
       .then(() => {
         navigation.replace('Login');
       })
@@ -50,6 +50,8 @@ const Router = ({navigation}) => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        {/* <Stack.Screen name ="payment" component={payment} options={{headerShown:false}}/> */}
+        {/* <Stack.Screen name="Dummy" component={Dummy} options={{headerShown:false}}/> */}
         <Stack.Screen
           name="Register"
           component={Register}
